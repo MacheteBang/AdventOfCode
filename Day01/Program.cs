@@ -14,28 +14,35 @@ Console.WriteLine(calibration);
 
 
 
+
+
 static int GetNumber(string input)
 {
-    string firstDigit = string.Empty;
-    string lastDigit = string.Empty;
+    bool hasFirstDigit = false; int firstDigit = -1;
+    bool hasLastDigit = false; int lastDigit = -1;
+
     for (int index = 0; index < input.Length; index++)
     {
-        if (string.IsNullOrEmpty(firstDigit) && char.IsDigit(input[index]))
+        if (!hasFirstDigit)
         {
-            firstDigit = Convert.ToString(input[index]);
+            hasFirstDigit = NumberFinder.TryGetDigitFromString(input.Substring(index), out firstDigit);
         }
 
-        int indexFromEnd = input.Length - 1 - index;
-        if (string.IsNullOrEmpty(lastDigit) && char.IsDigit(input[indexFromEnd]))
+        if (!hasLastDigit)
         {
-            lastDigit = Convert.ToString(input[indexFromEnd]);
+            int indexFromEnd = input.Length - 1 - index;
+            hasLastDigit = NumberFinder.TryGetDigitFromString(input.Substring(indexFromEnd), out lastDigit);
         }
 
-        if (!string.IsNullOrEmpty(firstDigit) && !string.IsNullOrEmpty(lastDigit))
+        if (hasFirstDigit && hasLastDigit)
         {
             break;
         }
     }
 
-    return Convert.ToInt16($"{firstDigit}{lastDigit}");
+    string finalNumber = hasFirstDigit ? firstDigit.ToString() : string.Empty;
+    finalNumber += hasLastDigit ? lastDigit.ToString() : string.Empty;
+
+    Console.WriteLine(finalNumber);
+    return Convert.ToInt16(finalNumber);
 }
