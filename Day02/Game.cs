@@ -4,6 +4,9 @@ public class Game
     public int Red { get; private set; }
     public int Green { get; private set; }
     public int Blue { get; private set; }
+    public int MinRed { get; private set; }
+    public int MinGreen { get; private set; }
+    public int MinBlue { get; private set; }
 
     private List<Game> _gameEvents = new();
 
@@ -20,6 +23,11 @@ public class Game
         return Red <= red
             && Green <= green
             && Blue <= blue;
+    }
+
+    public int GetPower()
+    {
+        return Red * Green * Blue;
     }
 
     public static Game ConvertToGame(string data)

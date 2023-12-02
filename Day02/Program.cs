@@ -1,10 +1,8 @@
 ﻿string filePath = "input.txt";
 string[] lines = File.ReadAllLines(filePath);
 
-Dictionary<int, Game> games = new();
-
 int possibleIds = 0;
-
+int totalPower = 0;
 
 foreach (string line in lines)
 {
@@ -14,6 +12,9 @@ foreach (string line in lines)
     {
         possibleIds += gameEvent.GameId;
     }
+
+    totalPower += gameEvent.GetPower();
 }
 
 Console.WriteLine($"Sum of Ids: {possibleIds}");
+Console.WriteLine($"Sum of Total Power: {totalPower}");
