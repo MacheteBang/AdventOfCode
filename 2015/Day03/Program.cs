@@ -3,21 +3,25 @@
 string input = "./input.txt";
 string directions = File.ReadAllText(input);
 
-Point location = new Point(0, 0);
-List<Point> housesWithPresents = new() { location };
+Point santaLocation = new Point(0, 0);
+Point roboLocation = new Point(0, 0);
 
-foreach (char d in directions)
+List<Point> housesWithPresents = new() { santaLocation, roboLocation };
+
+for (int i = 0; i < directions.Length; i++)
 {
-    switch (d)
+    var isSantasTurn = i % 2 == 0;
+
+    switch (directions[i])
     {
-        case '<': location.X--; break;
-        case '>': location.X++; break;
-        case '^': location.Y++; break;
-        case 'v': location.Y--; break;
+        case '<': if (isSantasTurn) santaLocation.X--; else roboLocation.X--; break;
+        case '>': if (isSantasTurn) santaLocation.X++; else roboLocation.X++; break;
+        case '^': if (isSantasTurn) santaLocation.Y++; else roboLocation.Y++; break;
+        case 'v': if (isSantasTurn) santaLocation.Y--; else roboLocation.Y--; break;
         default: break;
     }
 
-    housesWithPresents.Add(location);
+    housesWithPresents.Add(isSantasTurn ? santaLocation : roboLocation);
 }
 
 var multiHouseVisits = housesWithPresents
