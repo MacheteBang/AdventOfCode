@@ -9,48 +9,61 @@ partNumbers.ForEach(p => p.IsValid = IsValidPartNumber(p, matrix));
 
 
 int sumOfPartValidPartNumbers = partNumbers.Where(p => p.IsValid).Sum(p => p.Value);
+int sumOfGearRatios = 0;
 
-
-Console.WriteLine(sumOfPartValidPartNumbers);
-
-
-
-
-
-
-
-bool IsValidPartNumber(PartNumber part, char[,] matrix)
+for (int x = 0; x < matrix.GetLength(0); x++)
 {
-    Point TL = new Point(Math.Max(part.StartLocation.X - 1, 0), Math.Max(part.StartLocation.Y - 1, 0));
-    Point TR = new Point(Math.Min(part.EndLocation.X + 1, matrix.GetLength(0) - 1), Math.Max(part.EndLocation.Y - 1, 0));
-    Point BL = new Point(Math.Max(part.StartLocation.X - 1, 0), Math.Min(part.StartLocation.Y + 1, matrix.GetLength(1) - 1));
-    Point BR = new Point(Math.Min(part.EndLocation.X + 1, matrix.GetLength(0) - 1), Math.Min(part.EndLocation.Y + 1, matrix.GetLength(1) - 1));
-
-    // TOP
-    if (TL.Y < part.StartLocation.Y && TR.Y < part.EndLocation.Y)
+    for (int y = 0; y < matrix.GetLength(1); y++)
     {
-        char[] slice = Enumerable.Range(TL.X, TR.X - TL.X + 1).Select(x => matrix[x, TL.Y]).ToArray();
+        if (matrix[x, y] == '*')
+        {
+            var partsOnGear = partNumbers.Where(p => p.IsValid).Where(p => p.IsPointAdjacent(new Point(x, y))).ToList();
+            if (partsOnGear.Count() == 2)
+            {
+                sumOfGearRatios += partsOnGear.Aggregate(1, (a, b) => a * b.Value);
+            }
+
+        }
+    }
+}
+
+
+Console.WriteLine($"Sum of ValidPartNumbers: {sumOfPartValidPartNumbers}");
+Console.WriteLine($"Sum of Gear Ratios: {sumOfGearRatios}");
+
+
+
+
+
+
+
+bool IsValidPartNumber(Part part, char[,] matrix)
+{
+    // TOP
+    if (part.HasTop)
+    {
+        char[] slice = Enumerable.Range(part.TL.X, part.TR.X - part.TL.X + 1).Select(x => matrix[x, part.TL.Y]).ToArray();
         if (DoesSliceHaveCode(slice)) return true;
     }
 
     // RIGHT
-    if (TR.X > part.StartLocation.X && BR.X > part.EndLocation.X)
+    if (part.HasRight)
     {
-        char[] slice = Enumerable.Range(TR.Y, BR.Y - TR.Y + 1).Select(y => matrix[TR.X, y]).ToArray();
+        char[] slice = Enumerable.Range(part.TR.Y, part.BR.Y - part.TR.Y + 1).Select(y => matrix[part.TR.X, y]).ToArray();
         if (DoesSliceHaveCode(slice)) return true;
     }
 
     // BOTTOM
-    if (BL.Y > part.StartLocation.Y && BR.Y > part.EndLocation.Y)
+    if (part.HasBottom)
     {
-        char[] slice = Enumerable.Range(BL.X, BR.X - BL.X + 1).Select(x => matrix[x, BL.Y]).ToArray();
+        char[] slice = Enumerable.Range(part.BL.X, part.BR.X - part.BL.X + 1).Select(x => matrix[x, part.BL.Y]).ToArray();
         if (DoesSliceHaveCode(slice)) return true;
     }
 
     // LEFT
-    if (TL.X < part.StartLocation.X && BL.X < part.EndLocation.X)
+    if (part.HasLeft)
     {
-        char[] slice = Enumerable.Range(TL.Y, BL.Y - TL.Y + 1).Select(y => matrix[TL.X, y]).ToArray();
+        char[] slice = Enumerable.Range(part.TL.Y, part.BL.Y - part.TL.Y + 1).Select(y => matrix[part.TL.X, y]).ToArray();
         if (DoesSliceHaveCode(slice)) return true;
     }
 
@@ -96,11 +109,11 @@ char[,] ConvertLinesToMatrix(string[] lines)
     return returnValue;
 }
 
-List<PartNumber> GetPartNumbersFromMatrix(char[,] metrix)
+List<Part> GetPartNumbersFromMatrix(char[,] metrix)
 {
-    List<PartNumber> returnValue = new();
+    List<Part> returnValue = new();
 
-    PartNumber? currentPartNumber = default;
+    Part? currentPartNumber = default;
 
     for (int y = 0; y < matrix.GetLength(1); y++)
     {
@@ -108,7 +121,7 @@ List<PartNumber> GetPartNumbersFromMatrix(char[,] metrix)
         {
             if (char.IsDigit(matrix[x, y]))
             {
-                currentPartNumber = currentPartNumber ?? new() { StartLocation = new Point(x, y) };
+                currentPartNumber = currentPartNumber ?? new() { StartLocation = new Point(x, y), MaxBounds = new Point(matrix.GetLength(0) - 1, matrix.GetLength(1) - 1) };
                 currentPartNumber.ConcatDigit(matrix[x, y].ToString());
             }
             else
@@ -125,20 +138,12 @@ List<PartNumber> GetPartNumbersFromMatrix(char[,] metrix)
     return returnValue;
 }
 
-static PartNumber? ResetPartNumber(List<PartNumber> returnValue, PartNumber? currentPartNumber, int y, int x)
+static Part? ResetPartNumber(List<Part> returnValue, Part? currentPartNumber, int y, int x)
 {
     if (currentPartNumber is not null)
     {
         currentPartNumber.EndLocation = new Point(x, y);
-
-        PartNumber newPart = new()
-        {
-            StartLocation = currentPartNumber.StartLocation,
-            EndLocation = currentPartNumber.EndLocation,
-        };
-        newPart.ConcatDigit(currentPartNumber.Value.ToString());
-
-        returnValue.Add(newPart);
+        returnValue.Add(currentPartNumber);
         currentPartNumber = null;
     }
 
