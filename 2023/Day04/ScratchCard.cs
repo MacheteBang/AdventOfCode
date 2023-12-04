@@ -1,17 +1,17 @@
 public class ScratchCard
 {
+    public int CardId { get; set; }
     public int[] WinningNumbers { get; set; } = [];
     public int[] PlayerNumbers { get; set; } = [];
+
+
+    public int CountOfWinningNumbers => PlayerNumbers.Count(p => WinningNumbers.Contains(p));
+    public int WinningPoints => int.Parse(Math.Pow(2, CountOfWinningNumbers - 1));
+
 
     public bool IsWinner()
     {
         throw new NotImplementedException();
-    }
-
-    public int WinningPoints()
-    {
-        var winningNumbers = PlayerNumbers.Count(p => WinningNumbers.Contains(p));
-        return Convert.ToInt32(Math.Pow(2, winningNumbers - 1));
     }
 
     public static ScratchCard ToScratchCard(string cardInfo)
@@ -22,6 +22,7 @@ public class ScratchCard
 
         return new()
         {
+            CardId = int.Parse(cardNameString.Replace("Card", "").Trim()),
             WinningNumbers = numbersString[0]
                 .Trim()
                 .Split(' ')
