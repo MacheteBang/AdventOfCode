@@ -6,13 +6,8 @@ public class ScratchCard
 
 
     public int CountOfWinningNumbers => PlayerNumbers.Count(p => WinningNumbers.Contains(p));
-    public int WinningPoints => int.Parse(Math.Pow(2, CountOfWinningNumbers - 1));
-
-
-    public bool IsWinner()
-    {
-        throw new NotImplementedException();
-    }
+    public int WinningPoints => Convert.ToInt32(Math.Pow(2, CountOfWinningNumbers - 1));
+    public bool IsWinner => WinningPoints > 0;
 
     public static ScratchCard ToScratchCard(string cardInfo)
     {
