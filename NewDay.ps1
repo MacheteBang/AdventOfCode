@@ -30,4 +30,6 @@ if (!(Test-Path "./$fullDay")) {
     git add *
     git commit -a -m "Init $Year-$($Day.ToString("00"))"
     git push
+
+    cd ../..
 }
