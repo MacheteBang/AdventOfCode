@@ -5,7 +5,7 @@ string[] inputLines = File.ReadAllLines(inpputFilePath);
 
 
 long[] seeds = [];
-GardenMap currentMap = default;
+GardenMap? currentMap = null;
 List<GardenMap> maps = [];
 
 for (int i = 0; i < inputLines.Length; i++)
@@ -30,7 +30,7 @@ for (int i = 0; i < inputLines.Length; i++)
         continue;
     }
 
-    currentMap.Maps.Add(new MapSet(
+    currentMap!.Maps.Add(new MapSet(
         long.Parse(inputLines[i].Split(' ')[0]),
         long.Parse(inputLines[i].Split(' ')[1]),
         long.Parse(inputLines[i].Split(' ')[2])
