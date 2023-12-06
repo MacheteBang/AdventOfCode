@@ -40,12 +40,43 @@ if (currentMap is not null) maps.Add(currentMap);
 
 long minLocation = long.MaxValue;
 var timer = Stopwatch.StartNew();
-foreach (long seed in seeds)
-{
-    var id = GetId(GardenComponent.Seed, seed, GardenComponent.Location);
-    minLocation = Math.Min(id, minLocation);
-    Console.WriteLine($"Seed {seed}: Location {id}");
-}
+
+Parallel.ForEach(Enumerable.Range(0, seeds.Length / 2).Select(i => i * 2),
+    i =>
+    {
+        Console.WriteLine($"Starting Seed Set {seeds[i]}");
+        Parallel.For(seeds[i], seeds[i] + seeds[i + 1],
+        j =>
+        {
+            var id = GetId(GardenComponent.Seed, j, GardenComponent.Location);
+            minLocation = Math.Min(id, minLocation);
+
+            if (j % 100000 == 0) Console.WriteLine($"Seed Set {seeds[i]}: {Math.Round(100 * Convert.ToDouble(j - seeds[i]) / Convert.ToDouble(seeds[i + 1]))}");
+        });
+        Console.WriteLine($"Finished Seed Set {seeds[i]}");
+        GC.Collect();
+    }
+);
+
+// for (int i = 0; i < seeds.Length; i += 2)
+// {
+//     Parallel.For(seeds[i], seeds[i] + seeds[i + 1],
+//         j =>
+//         {
+//             var id = GetId(GardenComponent.Seed, j, GardenComponent.Location);
+//             minLocation = Math.Min(id, minLocation);
+
+//         }
+//     );
+
+//     for (long j = seeds[i]; j < seeds[i] + seeds[i + 1]; j++)
+//     {
+//         var id = GetId(GardenComponent.Seed, j, GardenComponent.Location);
+//         minLocation = Math.Min(id, minLocation);
+//         Console.WriteLine($"Seed {j}: Location {id}");
+//     }
+// }
+
 timer.Stop();
 Console.WriteLine($"The lowest location is {minLocation}");
 Console.WriteLine($"Process time was {timer.Elapsed}");
