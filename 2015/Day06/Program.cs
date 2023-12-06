@@ -1,7 +1,7 @@
 ﻿string inputFile = "./input.txt";
 string[] lines = File.ReadAllLines(inputFile);
 
-bool[,] lightArray = new bool[1000, 1000];
+int[,] lightArray = new int[1000, 1000];
 
 foreach (string line in lines)
 {
@@ -15,19 +15,31 @@ foreach (string line in lines)
     UpdateGrid(ref lightArray, action, start, end);
 }
 
-int countOfLightsOn = lightArray.Cast<bool>().Count(l => l);
+int countOfLightsOn = lightArray.Cast<int>().Sum();
 
 Console.WriteLine($"Lights On: {countOfLightsOn}");
 Console.WriteLine("End of Program");
 
 
-void UpdateGrid(ref bool[,] grid, string action, Coordinate start, Coordinate end)
+void UpdateGrid(ref int[,] grid, string action, Coordinate start, Coordinate end)
 {
     for (int x = start.X; x <= end.X; x++)
     {
         for (int y = start.Y; y <= end.Y; y++)
         {
-            grid[x, y] = action == "On" ? true : (action == "Off" ? false : !grid[x, y]);
+            if (action == "On")
+            {
+                grid[x, y] = grid[x, y] + 1;
+                continue;
+            }
+
+            if (action == "Off")
+            {
+                grid[x, y] = Math.Max(0, grid[x, y] - 1);
+                continue;
+            }
+
+            grid[x, y] = grid[x, y] + 2;
         }
     }
 
