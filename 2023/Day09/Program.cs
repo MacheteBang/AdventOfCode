@@ -1,7 +1,8 @@
 ﻿string inputFilePath = "./input.txt";
 string[] inputLines = File.ReadAllLines(inputFilePath);
 
-int sumOfNewValues = 0;
+int sumOfPrevValues = 0;
+int sumOfNextValues = 0;
 
 for (int j = 0; j < inputLines.Length; j++)
 {
@@ -19,20 +20,23 @@ for (int j = 0; j < inputLines.Length; j++)
     }
 
 
-
-    int lastValue = 0;
+    int prevValue = 0;
+    int nextValue = 0;
     while (readingsStack.Any())
     {
         var stack = readingsStack.Pop();
-        lastValue += stack.Last();
+        prevValue = stack.First() - prevValue;
+        nextValue = stack.Last() + nextValue;
     }
 
-    sumOfNewValues += lastValue;
+    sumOfPrevValues += prevValue;
+    sumOfNextValues += nextValue;
 
-    Console.WriteLine($"{lastValue.ToString().PadRight(10, ' ')}: {inputLines[j]}");
+    Console.WriteLine($"{prevValue.ToString().PadLeft(10, ' ')} | {nextValue.ToString().PadRight(10, ' ')}: {inputLines[j]}");
 }
 
-Console.WriteLine($"Sum of New Values: {sumOfNewValues}");
+Console.WriteLine($"Sum of New Values: {sumOfPrevValues}");
+Console.WriteLine($"Sum of New Values: {sumOfNextValues}");
 Console.WriteLine("End of Program");
 
 
