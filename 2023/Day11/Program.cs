@@ -1,12 +1,14 @@
 ﻿string inputFilePath = "./input.txt";
 string[] inputLines = File.ReadAllLines(inputFilePath);
 
-string[] expandedUniverse = ExpandUniverse(inputLines);
-expandedUniverse = PivotStrings(ExpandUniverse(PivotStrings(expandedUniverse)));
-int[,] universe = PopulateUniverse(expandedUniverse, out int maxGalaxyId);
+List<int> expandedRows = GetExpandedRowCol(inputLines);
+List<int> expandedCols = GetExpandedRowCol(PivotStrings(inputLines));
 
+int[,] universe = PopulateUniverse(inputLines, out int maxGalaxyId);
+// PrintMatrix(universe);
 
-int totalDistance = 0;
+int expansionAmount = 1000000;
+long totalDistance = 0;
 for (int i = 1; i <= maxGalaxyId; i++)
 {
     for (int j = i + 1; j <= maxGalaxyId; j++)
@@ -14,10 +16,15 @@ for (int i = 1; i <= maxGalaxyId; i++)
         var galaxy1 = GetGalaxyCoordinate(universe, i);
         var galaxy2 = GetGalaxyCoordinate(universe, j);
         int distance = Math.Abs(galaxy2.y - galaxy1.y) + Math.Abs(galaxy2.x - galaxy1.x);
-        // Console.WriteLine($"Galaxy {i} to Galaxy {j} distance is: {distance}");
-
+        for (int y = Math.Min(galaxy1.y, galaxy2.y) + 1; y < Math.Max(galaxy1.y, galaxy2.y); y++)
+        {
+            if (expandedRows.Contains(y)) distance += Math.Max(expansionAmount - 1, 1);
+        }
+        for (int x = Math.Min(galaxy1.x, galaxy2.x) + 1; x < Math.Max(galaxy1.x, galaxy2.x); x++)
+        {
+            if (expandedCols.Contains(x)) distance += Math.Max(expansionAmount - 1, 1);
+        }
         totalDistance += distance;
-
     }
 }
 
@@ -27,36 +34,23 @@ for (int i = 1; i <= maxGalaxyId; i++)
 
 
 
-PrintMatrix(universe, 2);
+// PrintMatrix(universe, 2);
 Console.WriteLine($"Total Distance: {totalDistance}");
 Console.WriteLine("End of Program");
 
-static string[] ExpandUniverse(string[] universe)
+static List<int> GetExpandedRowCol(string[] data)
 {
-    int newLength = universe.Length
-        + universe.Where(l => l.Distinct().Count() == 1).Count();
+    List<int> expandedRowCol = [];
 
-    string[] expandedUniverse = new string[newLength];
-
-    int i = 0;
-    foreach (string line in universe)
+    for (int i = 0; i < data.Length; i++)
     {
-        expandedUniverse[i] = line;
-        // Console.WriteLine(expandedUniverse[i]);
-        i++;
-
-
-        if (line.Distinct().Count() == 1)
+        if (data[i].First() == '.' && data[i].Distinct().Count() == 1)
         {
-            expandedUniverse[i] = new string('.', line.Length);
-            // Console.WriteLine(expandedUniverse[i]);
-            i++;
+            expandedRowCol.Add(i);
         }
     }
 
-
-    return expandedUniverse;
-
+    return expandedRowCol;
 }
 
 static int[,] PopulateUniverse(string[] data, out int maxGalaxyId)
