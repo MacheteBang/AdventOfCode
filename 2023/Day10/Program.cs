@@ -21,10 +21,36 @@ while (paths.Count > 0)
     }
 }
 
+PrintMatrix(mapMatrix);
+PrintMatrix(distanceMatrix, 3);
 
 
-PrintMatrix(distanceMatrix, 2);
+bool isInside = false;
+int insideSpots = 0;
+for (int y = 0; y < mapMatrix.GetLength(1); y++)
+{
+    isInside = false;
+    char lastBend = ' ';
+    for (int x = 0; x < mapMatrix.GetLength(0) - 1; x++)
+    {
+        char c = mapMatrix[x, y];
+        if (distanceMatrix[x, y] != 0 && "FLJ7".Contains(c))
+        {
+            if (c == '7' && lastBend == 'L') isInside = !isInside;
+            if (c == 'J' && lastBend == 'F') isInside = !isInside;
+            lastBend = c;
+        }
+
+        if (c == '|' && distanceMatrix[x, y] != 0) isInside = !isInside;
+        if (isInside && (c == '.' || distanceMatrix[x, y] == 0) && mapMatrix[x, y] != 'S') insideSpots++;
+
+    }
+}
+
+
+PrintMatrix(mapMatrix, 2);
 Console.WriteLine($"Max distance is {GetMax(distanceMatrix)}");
+Console.WriteLine($"Inside Spaces: {insideSpots}");
 Console.WriteLine("End of Program");
 
 
@@ -104,15 +130,21 @@ static bool IsInBounds<T>((int x, int y) point, T[,] matrix)
         && point.y < matrix.GetLength(1);
 }
 
+static (int x, int y) GetFinalSpot(int[,] distanceMatrix, int maxValue)
+{
+
+
+    throw new Exception("Not Found");
+}
 static void PrintMatrix<T>(T[,] distanceMatrix, int padding = 0)
 {
     Console.WriteLine("┌─────");
 
-    for (int i = 0; i < distanceMatrix.GetLength(0); i++)
+    for (int y = 0; y < distanceMatrix.GetLength(1); y++)
     {
-        for (int j = 0; j < distanceMatrix.GetLength(1); j++)
+        for (int x = 0; x < distanceMatrix.GetLength(0); x++)
         {
-            Console.Write(distanceMatrix[j, i].ToString().PadLeft(padding));
+            Console.Write(distanceMatrix[x, y].ToString().PadLeft(padding));
         }
         Console.WriteLine();
     }
